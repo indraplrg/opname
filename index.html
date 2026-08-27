@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./Style/app.css">
+    <title>Stock Opname F&B - KUY Gamestation</title>
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .nav-item.active { color: #2563eb; }
+        .nav-item.active .nav-icon { transform: scale(1.15); }
+        .unit-toggle input[type="radio"]:checked + label { background-color: #2563eb; color: white; border-color: #2563eb; }
+        .export-overlay { display: none; }
+        .export-overlay.show { display: flex; }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { appearance: textfield; }
+        .btn-add:active { transform: scale(0.95); }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 text-white px-4 py-3 z-50 shadow-lg" style="background: linear-gradient(to right, #2563eb, #1d4ed8);">
+        <div class="max-w-lg mx-auto flex items-center justify-between">
+            <div>
+                <h1 class="text-base font-bold leading-tight">Stock Opname F&B</h1>
+                <p class="text-blue-200 text-xs">KUY Gamestation</p>
+            </div>
+            <button onclick="showExport()" class="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1">
+                <span>📤</span> Selesai
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="pt-14 pb-20 px-3 max-w-lg mx-auto">
+
+        <!-- Tab: Info -->
+        <div id="tab-info" class="tab-content active">
+            <div class="bg-white rounded-xl shadow-sm p-4 mt-3">
+                <h2 class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                    <span class="text-lg">📋</span> Informasi Opname
+                </h2>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 mb-1 block">Tanggal</label>
+                        <input type="date" id="info-tanggal" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" onchange="saveData()">
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 mb-1 block">Shift</label>
+                        <select id="info-shift" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white" onchange="saveData()">
+                            <option value="Pagi">Pagi</option>
+                            <option value="Siang">Siang</option>
+                            <option value="Sore">Sore</option>
+                            <option value="Malam">Malam</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 mb-1 block">Crew</label>
+                        <input type="text" id="info-crew" placeholder="contoh: rendi & rahmat & azka" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" oninput="saveData()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Bagian Depan -->
+        <div id="tab-depan" class="tab-content">
+            <div class="bg-white rounded-xl shadow-sm p-4 mt-3">
+                <h2 class="text-sm font-bold text-gray-700 mb-1 flex items-center gap-2">
+                    <span class="text-lg">🏪</span> Bagian Depan
+                </h2>
+                <p class="text-xs text-gray-400 mb-3">Input stok barang bagian depan</p>
+                <div id="items-depan" class="space-y-2"></div>
+                <button onclick="addItem('depan')" class="btn-add mt-3 w-full bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-medium py-2 rounded-lg transition-colors border border-dashed border-blue-300">
+                    + Tambah Item
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab: Frozen Food -->
+        <div id="tab-frozen" class="tab-content">
+            <div class="bg-white rounded-xl shadow-sm p-4 mt-3">
+                <h2 class="text-sm font-bold text-gray-700 mb-1 flex items-center gap-2">
+                    <span class="text-lg">🍗</span> Frozen Food
+                </h2>
+                <p class="text-xs text-gray-400 mb-3">Input stok frozen food</p>
+                <div id="items-frozen" class="space-y-2"></div>
+                <button onclick="addItem('frozen')" class="btn-add mt-3 w-full bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-medium py-2 rounded-lg transition-colors border border-dashed border-blue-300">
+                    + Tambah Item
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab: Sayur & Bahan Segar -->
+        <div id="tab-sayur" class="tab-content">
+            <div class="bg-white rounded-xl shadow-sm p-4 mt-3">
+                <h2 class="text-sm font-bold text-gray-700 mb-1 flex items-center gap-2">
+                    <span class="text-lg">🥬</span> Sayur & Bahan Segar
+                </h2>
+                <p class="text-xs text-gray-400 mb-3">Input stok sayur dan bahan segar</p>
+                <div id="items-sayur" class="space-y-2"></div>
+                <button onclick="addItem('sayur')" class="btn-add mt-3 w-full bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-medium py-2 rounded-lg transition-colors border border-dashed border-blue-300">
+                    + Tambah Item
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab: Bagian Belakang -->
+        <div id="tab-belakang" class="tab-content">
+            <div class="bg-white rounded-xl shadow-sm p-4 mt-3">
+                <h2 class="text-sm font-bold text-gray-700 mb-1 flex items-center gap-2">
+                    <span class="text-lg">📦</span> Bagian Belakang
+                </h2>
+                <p class="text-xs text-gray-400 mb-3">Input stok barang bagian belakang</p>
+                <div id="items-belakang" class="space-y-2"></div>
+                <button onclick="addItem('belakang')" class="btn-add mt-3 w-full bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-medium py-2 rounded-lg transition-colors border border-dashed border-blue-300">
+                    + Tambah Item
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab: Packaging -->
+        <div id="tab-packaging" class="tab-content">
+            <div class="bg-white rounded-xl shadow-sm p-4 mt-3">
+                <h2 class="text-sm font-bold text-gray-700 mb-1 flex items-center gap-2">
+                    <span class="text-lg">🥡</span> Packaging
+                </h2>
+                <p class="text-xs text-gray-400 mb-3">Input stok packaging</p>
+                <div id="items-packaging" class="space-y-2"></div>
+                <button onclick="addItem('packaging')" class="btn-add mt-3 w-full bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-medium py-2 rounded-lg transition-colors border border-dashed border-blue-300">
+                    + Tambah Item
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab: Barang Habis -->
+        <div id="tab-habis" class="tab-content">
+            <div class="bg-white rounded-xl shadow-sm p-4 mt-3">
+                <h2 class="text-sm font-bold text-gray-700 mb-1 flex items-center gap-2">
+                    <span class="text-lg">⚠️</span> Barang Habis / Hampir Habis
+                </h2>
+                <p class="text-xs text-gray-400 mb-3">Daftar barang yang sudah habis atau hampir habis</p>
+                <div id="items-habis" class="space-y-2"></div>
+                <button onclick="addListItem('habis')" class="btn-add mt-3 w-full bg-amber-50 hover:bg-amber-100 text-amber-600 text-xs font-medium py-2 rounded-lg transition-colors border border-dashed border-amber-300">
+                    + Tambah Barang
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab: Barang Rusak -->
+        <div id="tab-rusak" class="tab-content">
+            <div class="bg-white rounded-xl shadow-sm p-4 mt-3">
+                <h2 class="text-sm font-bold text-gray-700 mb-1 flex items-center gap-2">
+                    <span class="text-lg">❌</span> Barang Rusak / Terbuang
+                </h2>
+                <p class="text-xs text-gray-400 mb-3">Daftar barang rusak atau terbuang</p>
+                <div id="items-rusak" class="space-y-2"></div>
+                <button onclick="addListItem('rusak')" class="btn-add mt-3 w-full bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium py-2 rounded-lg transition-colors border border-dashed border-red-300">
+                    + Tambah Barang
+                </button>
+                <div class="mt-3">
+                    <label class="text-xs font-medium text-gray-500 mb-1 block">Alasan / Waste</label>
+                    <textarea id="rusak-alasan" rows="3" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none" placeholder="Jelaskan alasan kerusakan / waste..." oninput="saveData()"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Pembelian -->
+        <div id="tab-pembelian" class="tab-content">
+            <div class="bg-white rounded-xl shadow-sm p-4 mt-3">
+                <h2 class="text-sm font-bold text-gray-700 mb-1 flex items-center gap-2">
+                    <span class="text-lg">💰</span> Pembelian Hari Ini
+                </h2>
+                <p class="text-xs text-gray-400 mb-3">Catat semua pembelian hari ini</p>
+                <div id="items-pembelian" class="space-y-2"></div>
+                <button onclick="addPembelian()" class="btn-add mt-3 w-full bg-green-50 hover:bg-green-100 text-green-600 text-xs font-medium py-2 rounded-lg transition-colors border border-dashed border-green-300">
+                    + Tambah Pembelian
+                </button>
+                <div class="mt-3 bg-gray-50 rounded-lg p-3 flex items-center justify-between">
+                    <span class="text-xs font-medium text-gray-500">Total Pembelian</span>
+                    <span id="total-pembelian" class="text-sm font-bold text-green-600">Rp 0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Foto & Tanda Tangan -->
+        <div id="tab-foto" class="tab-content">
+            <div class="bg-white rounded-xl shadow-sm p-4 mt-3">
+                <h2 class="text-sm font-bold text-gray-700 mb-1 flex items-center gap-2">
+                    <span class="text-lg">📸</span> Foto & Tanda Tangan
+                </h2>
+                <p class="text-xs text-gray-400 mb-3">Centang foto yang sudah diambil & tanda tangan</p>
+
+                <div class="space-y-2 mb-4">
+                    <label class="flex items-center gap-3 p-2.5 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                        <input type="checkbox" id="foto-freezer" class="w-4 h-4 text-blue-600 rounded" onchange="saveData()">
+                        <span class="text-sm">Foto stok freezer</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-2.5 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                        <input type="checkbox" id="foto-kulkas" class="w-4 h-4 text-blue-600 rounded" onchange="saveData()">
+                        <span class="text-sm">Foto stok kulkas</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-2.5 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                        <input type="checkbox" id="foto-dry" class="w-4 h-4 text-blue-600 rounded" onchange="saveData()">
+                        <span class="text-sm">Foto stok dry storage</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-2.5 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                        <input type="checkbox" id="foto-packaging" class="w-4 h-4 text-blue-600 rounded" onchange="saveData()">
+                        <span class="text-sm">Foto stok packaging</span>
+                    </label>
+                </div>
+
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 mb-1 block">Petugas</label>
+                        <input type="text" id="ttd-petugas" placeholder="Nama petugas" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" oninput="saveData()">
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 mb-1 block">Supervisor</label>
+                        <input type="text" id="ttd-supervisor" placeholder="Nama supervisor" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" oninput="saveData()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+        <div id="bottom-nav" class="flex overflow-x-auto no-scrollbar">
+            <button onclick="switchTab('info')" data-tab="info" class="nav-item active flex flex-col items-center shrink-0 min-w-0 flex-1 py-2 px-0.5 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
+                <span class="nav-icon text-base mb-0.5 transition-transform">📋</span>
+                Info
+            </button>
+            <button onclick="switchTab('depan')" data-tab="depan" class="nav-item flex flex-col items-center shrink-0 min-w-0 flex-1 py-2 px-0.5 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
+                <span class="nav-icon text-base mb-0.5 transition-transform">🏪</span>
+                Depan
+            </button>
+            <button onclick="switchTab('frozen')" data-tab="frozen" class="nav-item flex flex-col items-center shrink-0 min-w-0 flex-1 py-2 px-0.5 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
+                <span class="nav-icon text-base mb-0.5 transition-transform">🍗</span>
+                Frozen
+            </button>
+            <button onclick="switchTab('sayur')" data-tab="sayur" class="nav-item flex flex-col items-center shrink-0 min-w-0 flex-1 py-2 px-0.5 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
+                <span class="nav-icon text-base mb-0.5 transition-transform">🥬</span>
+                Sayur
+            </button>
+            <button onclick="switchTab('belakang')" data-tab="belakang" class="nav-item flex flex-col items-center shrink-0 min-w-0 flex-1 py-2 px-0.5 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
+                <span class="nav-icon text-base mb-0.5 transition-transform">📦</span>
+                Belakang
+            </button>
+            <button onclick="switchTab('packaging')" data-tab="packaging" class="nav-item flex flex-col items-center shrink-0 min-w-0 flex-1 py-2 px-0.5 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
+                <span class="nav-icon text-base mb-0.5 transition-transform">🥡</span>
+                Pack
+            </button>
+            <button onclick="switchTab('habis')" data-tab="habis" class="nav-item flex flex-col items-center shrink-0 min-w-0 flex-1 py-2 px-0.5 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
+                <span class="nav-icon text-base mb-0.5 transition-transform">⚠️</span>
+                Habis
+            </button>
+            <button onclick="switchTab('rusak')" data-tab="rusak" class="nav-item flex flex-col items-center shrink-0 min-w-0 flex-1 py-2 px-0.5 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
+                <span class="nav-icon text-base mb-0.5 transition-transform">❌</span>
+                Rusak
+            </button>
+            <button onclick="switchTab('pembelian')" data-tab="pembelian" class="nav-item flex flex-col items-center shrink-0 min-w-0 flex-1 py-2 px-0.5 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
+                <span class="nav-icon text-base mb-0.5 transition-transform">💰</span>
+                Beli
+            </button>
+            <button onclick="switchTab('foto')" data-tab="foto" class="nav-item flex flex-col items-center shrink-0 min-w-0 flex-1 py-2 px-0.5 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
+                <span class="nav-icon text-base mb-0.5 transition-transform">📸</span>
+                Foto
+            </button>
+        </div>
+    </nav>
+
+    <!-- Export Overlay -->
+    <div id="export-overlay" class="export-overlay fixed inset-0 bg-black/60 items-end justify-center" style="z-index: 100;">
+        <div class="bg-white w-full max-w-lg rounded-t-2xl p-4 max-h-[85vh] flex flex-col">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-sm font-bold text-gray-700">📄 Output Stock Opname</h3>
+                <button onclick="hideExport()" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+            </div>
+            <div class="flex-1 overflow-y-auto mb-3">
+                <pre id="export-text" class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs font-mono text-gray-700 whitespace-pre-wrap wrap-break-words"></pre>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="copyExport()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium py-2.5 rounded-lg transition-colors">
+                    📋 Copy Text
+                </button>
+                <button onclick="downloadExport()" class="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium py-2.5 rounded-lg transition-colors">
+                    💾 Download .txt
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-4 py-2 rounded-lg shadow-lg transition-all opacity-0 pointer-events-none" style="z-index: 200;"></div>
+
+    <script>
+    // ===== DEFAULT DATA =====
+    const DEFAULTS = {
+        depan: [
+            { name: "Beng-Beng", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Tebs", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Coca Cola", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Greensand", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Air Mineral", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Sprite", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Good Day", entries: [{ value: "", unit: "pcs" }], notes: "" }
+        ],
+        frozen: [
+            { name: "Chicken Katsu", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Chicken Karaage", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Udang Keju", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Dimsum", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Cireng", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Kentang Frozen", entries: [{ value: "", unit: "gr" }], notes: "" },
+            { name: "Sosis", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Naget", entries: [{ value: "", unit: "gr" }], notes: "" }
+        ],
+        sayur: [
+            { name: "Miv Vegetables", entries: [{ value: "", unit: "gr" }], notes: "" }
+        ],
+        belakang: [
+            { name: "Beras", entries: [{ value: "", unit: "text" }], notes: "" },
+            { name: "Minyak Goreng", entries: [{ value: "", unit: "text" }], notes: "" },
+            { name: "Indomie Goreng", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Indomie Kuah", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Beng-Beng", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Air Mineral", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Tebs", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Greensand", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "CocaCola", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Chocolate", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Butterscotch", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Matcha", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Americano", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Ice Tea", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Lemon Tea", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Sprite", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Good Day", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Palm Sugar", entries: [{ value: "", unit: "pcs" }], notes: "" }
+        ],
+        packaging: [
+            { name: "Cup Mi 360ml", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Cup Nasi 500ml", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Cup Minum 360ml", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Paper Bowl", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Tempat Saos", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Sendok", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Garpu", entries: [{ value: "", unit: "pcs" }], notes: "" },
+            { name: "Tissue", entries: [{ value: "", unit: "pac" }], notes: "" },
+            { name: "Saus Sachet", entries: [{ value: "", unit: "pcs" }], notes: "" }
+        ],
+        habis: [],
+        rusak: [],
+        pembelian: []
+    };
+
+    // ===== STATE =====
+    let state = {};
+
+    function getDefaultState() {
+        return {
+            info: { tanggal: new Date().toISOString().split('T')[0], shift: "Pagi", crew: "" },
+            depan: JSON.parse(JSON.stringify(DEFAULTS.depan)),
+            frozen: JSON.parse(JSON.stringify(DEFAULTS.frozen)),
+            sayur: JSON.parse(JSON.stringify(DEFAULTS.sayur)),
+            belakang: JSON.parse(JSON.stringify(DEFAULTS.belakang)),
+            packaging: JSON.parse(JSON.stringify(DEFAULTS.packaging)),
+            habis: [],
+            rusak: [],
+            rusakAlasan: "",
+            pembelian: [],
+            foto: { freezer: false, kulkas: false, dry: false, packaging: false },
+            petugas: "",
+            supervisor: ""
+        };
+    }
+
+    // ===== LOCALSTORAGE =====
+    function saveData() {
+        state.info = {
+            tanggal: document.getElementById('info-tanggal').value,
+            shift: document.getElementById('info-shift').value,
+            crew: document.getElementById('info-crew').value
+        };
+        state.rusakAlasan = document.getElementById('rusak-alasan')?.value || "";
+        state.petugas = document.getElementById('ttd-petugas')?.value || "";
+        state.supervisor = document.getElementById('ttd-supervisor')?.value || "";
+        state.foto = {
+            freezer: document.getElementById('foto-freezer')?.checked || false,
+            kulkas: document.getElementById('foto-kulkas')?.checked || false,
+            dry: document.getElementById('foto-dry')?.checked || false,
+            packaging: document.getElementById('foto-packaging')?.checked || false
+        };
+        // Read item values from DOM
+        ['depan','frozen','sayur','belakang','packaging'].forEach(section => {
+            const container = document.getElementById('items-' + section);
+            if (!container) return;
+            state[section] = state[section].map((item, i) => {
+                const notesEl = container.querySelector(`[data-idx="${i}"][data-field="notes"]`);
+                const entries = [];
+                let e = 0;
+                while (true) {
+                    const valEl = container.querySelector(`[data-idx="${i}"][data-entry="${e}"][data-field="value"]`);
+                    const unitEl = container.querySelector(`[data-idx="${i}"][data-entry="${e}"][data-field="unit"]`);
+                    if (!valEl && !unitEl) break;
+                    entries.push({
+                        value: valEl ? valEl.value : "",
+                        unit: unitEl ? unitEl.value : "pcs"
+                    });
+                    e++;
+                }
+                return {
+                    ...item,
+                    entries: entries.length > 0 ? entries : [{ value: "", unit: "pcs" }],
+                    notes: notesEl ? notesEl.value : item.notes
+                };
+            });
+        });
+        ['habis','rusak'].forEach(section => {
+            const container = document.getElementById('items-' + section);
+            if (!container) return;
+            state[section] = state[section].map((item, i) => {
+                const nameEl = container.querySelector(`[data-idx="${i}"][data-field="name"]`);
+                return { name: nameEl ? nameEl.value : item.name };
+            });
+        });
+        const pemContainer = document.getElementById('items-pembelian');
+        if (pemContainer) {
+            state.pembelian = state.pembelian.map((item, i) => {
+                const nameEl = pemContainer.querySelector(`[data-idx="${i}"][data-field="name"]`);
+                const hargaEl = pemContainer.querySelector(`[data-idx="${i}"][data-field="harga"]`);
+                return {
+                    name: nameEl ? nameEl.value : item.name,
+                    harga: hargaEl ? hargaEl.value : item.harga
+                };
+            });
+        }
+        localStorage.setItem('stockOpname', JSON.stringify(state));
+    }
+
+    function loadData() {
+        const saved = localStorage.getItem('stockOpname');
+        if (saved) {
+            state = JSON.parse(saved);
+            // Migrate old format: value/unit → entries
+            ['depan','frozen','sayur','belakang','packaging'].forEach(section => {
+                if (!state[section]) return;
+                state[section] = state[section].map(item => {
+                    if (item.entries) return item;
+                    const entry = { value: item.value || "", unit: item.unit || "pcs" };
+                    const { value, unit, ...rest } = item;
+                    return { ...rest, entries: [entry] };
+                });
+            });
+        } else {
+            state = getDefaultState();
+        }
+    }
+
+    // ===== TAB SWITCHING =====
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab-' + tabId).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    // ===== RENDER STOCK ITEMS =====
+    function renderStockSection(section) {
+        const container = document.getElementById('items-' + section);
+        if (!container) return;
+        container.innerHTML = '';
+        state[section].forEach((item, i) => {
+            const div = document.createElement('div');
+            div.className = 'bg-gray-50 rounded-lg p-2.5 border border-gray-100';
+
+            let entriesHtml = '';
+            (item.entries || [{ value: "", unit: "pcs" }]).forEach((entry, e) => {
+                const isLast = e === (item.entries || []).length - 1;
+                entriesHtml += `
+                <div class="flex items-center gap-1.5 ${e > 0 ? 'mt-1.5' : ''}">
+                    ${e > 0 ? '<span class="text-[10px] text-gray-400 w-3 text-center">+</span>' : '<span class="w-3"></span>'}
+                    <input type="text" value="${esc(entry.value)}" data-idx="${i}" data-entry="${e}" data-field="value"
+                        class="w-16 text-sm border border-gray-200 rounded px-2 py-1 outline-none focus:ring-1 focus:ring-blue-400 bg-white"
+                        oninput="saveData()" placeholder="Jmlh">
+                    <select data-idx="${i}" data-entry="${e}" data-field="unit" onchange="saveData()"
+                        class="text-xs border border-gray-200 rounded px-1 py-1 outline-none bg-white focus:ring-1 focus:ring-blue-400">
+                        <option value="pcs" ${entry.unit==='pcs'?'selected':''}>Pcs</option>
+                        <option value="gr" ${entry.unit==='gr'?'selected':''}>Gr</option>
+                        <option value="bungkus" ${entry.unit==='bungkus'?'selected':''}>Bungkus</option>
+                        <option value="pac" ${entry.unit==='pac'?'selected':''}>Pac</option>
+                        <option value="text" ${entry.unit==='text'?'selected':''}>Teks</option>
+                    </select>
+                    ${item.entries.length > 1
+                        ? `<button onclick="removeEntry('${section}', ${i}, ${e})" class="text-red-400 hover:text-red-600 text-xs p-0.5 leading-none">&times;</button>`
+                        : '<span class="w-4"></span>'}
+                </div>`;
+            });
+
+            div.innerHTML = `
+                <div class="flex items-center gap-2 mb-1.5">
+                    <input type="text" value="${esc(item.name)}" data-idx="${i}" data-field="name"
+                        class="flex-1 text-xs font-semibold text-gray-700 bg-transparent border-0 outline-none p-0"
+                        oninput="saveData()" placeholder="Nama barang">
+                    <button onclick="removeItem('${section}', ${i})" class="text-red-400 hover:text-red-600 text-sm p-0.5">&times;</button>
+                </div>
+                <div class="entries-container" data-idx="${i}">
+                    ${entriesHtml}
+                    <div class="flex items-center gap-1.5 mt-1.5">
+                        <button onclick="addEntry('${section}', ${i})"
+                            class="text-blue-500 hover:text-blue-700 text-[10px] font-medium bg-blue-50 hover:bg-blue-100 rounded px-1.5 py-0.5 transition-colors">+ tambah</button>
+                    </div>
+                </div>
+                <input type="text" value="${esc(item.notes)}" data-idx="${i}" data-field="notes"
+                    class="w-full text-[11px] text-gray-400 bg-transparent border-0 outline-none mt-1 p-0"
+                    oninput="saveData()" placeholder="Catatan (opsional)">
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    // ===== RENDER LIST ITEMS (habis/rusak) =====
+    function renderListSection(section) {
+        const container = document.getElementById('items-' + section);
+        if (!container) return;
+        container.innerHTML = '';
+        state[section].forEach((item, i) => {
+            const div = document.createElement('div');
+            div.className = 'flex items-center gap-2 bg-gray-50 rounded-lg p-2 border border-gray-100';
+            div.innerHTML = `
+                <span class="text-xs text-gray-400 font-medium">${i + 1}.</span>
+                <input type="text" value="${esc(item.name)}" data-idx="${i}" data-field="name"
+                    class="flex-1 text-sm border border-gray-200 rounded px-2 py-1.5 outline-none focus:ring-1 focus:ring-blue-400 bg-white"
+                    oninput="saveData()" placeholder="Nama barang">
+                <button onclick="removeListItem('${section}', ${i})" class="text-red-400 hover:text-red-600 text-sm p-0.5">&times;</button>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    // ===== RENDER PEMBELIAN =====
+    function renderPembelian() {
+        const container = document.getElementById('items-pembelian');
+        if (!container) return;
+        container.innerHTML = '';
+        let total = 0;
+        state.pembelian.forEach((item, i) => {
+            const harga = parseInt(item.harga) || 0;
+            total += harga;
+            const div = document.createElement('div');
+            div.className = 'bg-gray-50 rounded-lg p-2.5 border border-gray-100';
+            div.innerHTML = `
+                <div class="flex items-center gap-2 mb-1.5">
+                    <span class="text-xs text-gray-400 font-medium">${i + 1}.</span>
+                    <input type="text" value="${esc(item.name)}" data-idx="${i}" data-field="name"
+                        class="flex-1 text-xs font-medium text-gray-700 border border-gray-200 rounded px-2 py-1.5 outline-none focus:ring-1 focus:ring-blue-400 bg-white"
+                        oninput="saveData()" placeholder="Nama barang">
+                    <button onclick="removePembelian(${i})" class="text-red-400 hover:text-red-600 text-sm p-0.5">&times;</button>
+                </div>
+                <div class="flex items-center gap-1">
+                    <span class="text-xs text-gray-400">Rp</span>
+                    <input type="text" value="${esc(item.harga)}" data-idx="${i}" data-field="harga"
+                        class="flex-1 text-sm border border-gray-200 rounded px-2 py-1 outline-none focus:ring-1 focus:ring-blue-400 bg-white"
+                        oninput="saveData()" placeholder="0">
+                </div>
+            `;
+            container.appendChild(div);
+        });
+        document.getElementById('total-pembelian').textContent = 'Rp ' + total.toLocaleString('id-ID');
+    }
+
+    // ===== ADD/REMOVE =====
+    function addItem(section) {
+        state[section].push({ name: "", entries: [{ value: "", unit: "pcs" }], notes: "" });
+        renderStockSection(section);
+    }
+
+    function removeItem(section, idx) {
+        state[section].splice(idx, 1);
+        renderStockSection(section);
+    }
+
+    function addEntry(section, itemIdx) {
+        state[section][itemIdx].entries.push({ value: "", unit: "pcs" });
+        renderStockSection(section);
+    }
+
+    function removeEntry(section, itemIdx, entryIdx) {
+        if (state[section][itemIdx].entries.length <= 1) return;
+        state[section][itemIdx].entries.splice(entryIdx, 1);
+        renderStockSection(section);
+    }
+
+    function addListItem(section) {
+        state[section].push({ name: "" });
+        renderListSection(section);
+    }
+
+    function removeListItem(section, idx) {
+        state[section].splice(idx, 1);
+        renderListSection(section);
+    }
+
+    function addPembelian() {
+        state.pembelian.push({ name: "", harga: "" });
+        renderPembelian();
+    }
+
+    function removePembelian(idx) {
+        state.pembelian.splice(idx, 1);
+        renderPembelian();
+    }
+
+    // ===== RENDER ALL =====
+    function renderAll() {
+        document.getElementById('info-tanggal').value = state.info.tanggal || '';
+        document.getElementById('info-shift').value = state.info.shift || 'Pagi';
+        document.getElementById('info-crew').value = state.info.crew || '';
+        document.getElementById('rusak-alasan').value = state.rusakAlasan || '';
+        document.getElementById('ttd-petugas').value = state.petugas || '';
+        document.getElementById('ttd-supervisor').value = state.supervisor || '';
+        document.getElementById('foto-freezer').checked = state.foto?.freezer || false;
+        document.getElementById('foto-kulkas').checked = state.foto?.kulkas || false;
+        document.getElementById('foto-dry').checked = state.foto?.dry || false;
+        document.getElementById('foto-packaging').checked = state.foto?.packaging || false;
+        ['depan','frozen','sayur','belakang','packaging'].forEach(renderStockSection);
+        renderListSection('habis');
+        renderListSection('rusak');
+        renderPembelian();
+    }
+
+    // ===== EXPORT =====
+    function generateText() {
+        const info = state.info;
+        const tanggalParts = info.tanggal ? info.tanggal.split('-') : ['','',''];
+        const tgl = tanggalParts[2] || '';
+        const bln = tanggalParts[1] || '';
+        const thn = tanggalParts[0] || '';
+
+        let text = '';
+        text += '📋 STOCK OPNAME F&B\n';
+        text += 'KUY GAMESTATION\n';
+        text += `Tanggal: _${tgl}_/${bln}_/${thn}_\n`;
+        text += `Shift: ${info.shift || ''} \n`;
+        text += `Crew : _${info.crew || ''}_\n`;
+        text += '\n';
+
+        const sectionHeaders = {
+            depan: 'BAGIAN DEPAN',
+            frozen: '🍗 FROZEN FOOD',
+            sayur: '🥬 SAYUR & BAHAN SEGAR',
+            belakang: 'BAGIAN BELAKANG',
+            packaging: '🥡 PACKAGING'
+        };
+
+        ['depan','frozen','sayur','belakang','packaging'].forEach(section => {
+            text += '━━━━━━━━━━━━━━━━━━━\n';
+            text += sectionHeaders[section] + '\n';
+            text += '━━━━━━━━━━━━━━━━━━━\n';
+            state[section].forEach(item => {
+                const name = item.name || '???';
+                const entries = item.entries || [];
+                const hasText = entries.some(e => e.unit === 'text');
+                const filled = entries.filter(e => e.value);
+                const notes = item.notes || '';
+
+                if (hasText) {
+                    text += `${name} : ${entries.map(e => e.value || '').join(' ')}\n`;
+                } else if (filled.length > 0) {
+                    const parts = filled.map(e => `${e.value}${e.unit}`);
+                    let line = parts.join(' + ');
+                    if (notes) line += ' + ' + notes;
+                    text += `${name} : ${line}\n`;
+                } else {
+                    text += `${name} : ${notes || ''}\n`;
+                }
+            });
+            text += '\n';
+        });
+
+        // Barang Habis
+        text += '━━━━━━━━━━━━━━━━━━━\n';
+        text += '⚠️ BARANG HABIS / HAMPIR HABIS\n';
+        text += '━━━━━━━━━━━━━━━━━━━\n';
+        if (state.habis.length === 0) {
+            text += '1. \n2. __________________\n3. __________________\n';
+        } else {
+            state.habis.forEach((item, i) => {
+                text += `${i + 1}.  ${item.name || ''}\n`;
+            });
+        }
+        text += '\n';
+
+        // Barang Rusak
+        text += '━━━━━━━━━━━━━━━━━━━\n';
+        text += '❌ BARANG RUSAK / TERBUANG\n';
+        text += '━━━━━━━━━━━━━━━━━━━\n';
+        if (state.rusak.length === 0) {
+            text += '1.\n2. __________________\n3. __________________\n';
+        } else {
+            state.rusak.forEach((item, i) => {
+                text += `${i + 1}. ${item.name || ''}\n`;
+            });
+        }
+        text += '\nAlasan/Waste:\n';
+        text += (state.rusakAlasan || '') + '\n';
+        text += '\n';
+
+        // Pembelian
+        text += '━━━━━━━━━━━━━━━━━━━\n';
+        text += '💰 PEMBELIAN HARI INI\n';
+        text += '━━━━━━━━━━━━━━━━━━━\n';
+        if (state.pembelian.length === 0) {
+            text += '1.\nRp.\n2. \nRp. \n3.\nRp.\n';
+        } else {
+            state.pembelian.forEach((item, i) => {
+                text += `${i + 1}.\nRp.${item.harga || ''}\n`;
+            });
+        }
+        let total = 0;
+        state.pembelian.forEach(item => { total += parseInt(item.harga) || 0; });
+        text += `Total Pembelian: ${total > 0 ? 'Rp ' + total.toLocaleString('id-ID') : ''}\n`;
+        text += '\n';
+
+        // Foto
+        text += '📸 WAJIB\n';
+        text += '━━━━━━━━━━━━━━━━━━━\n';
+        text += `${state.foto?.freezer ? '☑' : '☐'} Foto stok freezer\n`;
+        text += `${state.foto?.kulkas ? '☑' : '☐'} Foto stok kulkas\n`;
+        text += `${state.foto?.dry ? '☑' : '☐'} Foto stok dry storage\n`;
+        text += `${state.foto?.packaging ? '☑' : '☐'} Foto stok packaging\n`;
+        text += '\n';
+        text += `Petugas:\n${state.petugas || '_____________'}\n`;
+        text += '\n';
+        text += `Supervisor:\n${state.supervisor || '_____________'}`;
+
+        return text;
+    }
+
+    function showExport() {
+        saveData();
+        const text = generateText();
+        document.getElementById('export-text').textContent = text;
+        document.getElementById('export-overlay').classList.add('show');
+    }
+
+    function hideExport() {
+        document.getElementById('export-overlay').classList.remove('show');
+    }
+
+    function copyExport() {
+        const text = document.getElementById('export-text').textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('✅ Berhasil dicopy ke clipboard!');
+        }).catch(() => {
+            // Fallback
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast('✅ Berhasil dicopy ke clipboard!');
+        });
+    }
+
+    function downloadExport() {
+        const text = document.getElementById('export-text').textContent;
+        const blob = new Blob([text], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const info = state.info;
+        const tanggalParts = info.tanggal ? info.tanggal.split('-') : ['','',''];
+        a.href = url;
+        a.download = `stock-opname-${tanggalParts[0]}${tanggalParts[1]}${tanggalParts[2]}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('✅ File berhasil didownload!');
+    }
+
+    // ===== TOAST =====
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.remove('opacity-0', 'pointer-events-none');
+        t.classList.add('opacity-100');
+        setTimeout(() => {
+            t.classList.add('opacity-0', 'pointer-events-none');
+            t.classList.remove('opacity-100');
+        }, 2000);
+    }
+
+    // ===== HELPERS =====
+    function esc(str) {
+        if (!str) return '';
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // Close overlay on backdrop click
+    document.getElementById('export-overlay').addEventListener('click', function(e) {
+        if (e.target === this) hideExport();
+    });
+
+    // ===== INIT =====
+    loadData();
+    renderAll();
+    </script>
+
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+
+</body>
+</html>
