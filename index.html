@@ -413,6 +413,7 @@
             const container = document.getElementById('items-' + section);
             if (!container) return;
             state[section] = state[section].map((item, i) => {
+                const nameEl = container.querySelector(`[data-idx="${i}"][data-field="name"]`);
                 const notesEl = container.querySelector(`[data-idx="${i}"][data-field="notes"]`);
                 const entries = [];
                 let e = 0;
@@ -427,7 +428,7 @@
                     e++;
                 }
                 return {
-                    ...item,
+                    name: nameEl ? nameEl.value : item.name,
                     entries: entries.length > 0 ? entries : [{ value: "", unit: "pcs" }],
                     notes: notesEl ? notesEl.value : item.notes
                 };
