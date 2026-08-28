@@ -27,12 +27,12 @@
             <div>
                 <h1 class="text-base font-bold leading-tight">Stock Opname F&B</h1>
             </div>
-            <div class="flex items-center gap-2">
-                <label class="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1 cursor-pointer">
-                    <span>📥</span> Import
+            <div class="flex items-center gap-1">
+                <label class="bg-white/20 hover:bg-white/30 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-center cursor-pointer" title="Import JSON">
+                    <span>📥</span>
                     <input type="file" accept=".json" onchange="importJSON(event)" class="hidden">
                 </label>
-                <button onclick="showExport()" class="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1">
+                <button onclick="showExport()" class="bg-white/20 hover:bg-white/30 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1">
                     <span>📤</span> Selesai
                 </button>
             </div>
@@ -49,6 +49,10 @@
                     <span class="text-lg">📋</span> Informasi Opname
                 </h2>
                 <div class="space-y-3">
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 mb-1 block">Title / Nama Usaha</label>
+                        <input type="text" id="info-title" placeholder="contoh: KUY GAMESTATION" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" oninput="saveData()">
+                    </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 mb-1 block">Tanggal</label>
                         <input type="date" id="info-tanggal" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" onchange="saveData()">
@@ -234,44 +238,44 @@
 
     <!-- Bottom Navigation -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
-        <div id="bottom-nav" class="flex overflow-x-auto no-scrollbar">
-            <button onclick="switchTab('info')" data-tab="info" class="nav-item active flex flex-col items-center shrink-0 min-w-0 flex-1 py-2 px-0.5 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
+        <div id="bottom-nav" class="flex gap-1 overflow-x-auto no-scrollbar max-w-lg mx-auto px-1">
+            <button onclick="switchTab('info')" data-tab="info" class="nav-item active flex flex-col items-center shrink-0 min-w-[48px] py-2 px-1 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
                 <span class="nav-icon text-base mb-0.5 transition-transform">📋</span>
                 Info
             </button>
-            <button onclick="switchTab('depan')" data-tab="depan" class="nav-item flex flex-col items-center shrink-0 min-w-0 flex-1 py-2 px-0.5 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
+            <button onclick="switchTab('depan')" data-tab="depan" class="nav-item flex flex-col items-center shrink-0 min-w-[48px] py-2 px-1 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
                 <span class="nav-icon text-base mb-0.5 transition-transform">🏪</span>
                 Depan
             </button>
-            <button onclick="switchTab('frozen')" data-tab="frozen" class="nav-item flex flex-col items-center shrink-0 min-w-0 flex-1 py-2 px-0.5 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
+            <button onclick="switchTab('frozen')" data-tab="frozen" class="nav-item flex flex-col items-center shrink-0 min-w-[48px] py-2 px-1 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
                 <span class="nav-icon text-base mb-0.5 transition-transform">🍗</span>
                 Frozen
             </button>
-            <button onclick="switchTab('sayur')" data-tab="sayur" class="nav-item flex flex-col items-center shrink-0 min-w-0 flex-1 py-2 px-0.5 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
+            <button onclick="switchTab('sayur')" data-tab="sayur" class="nav-item flex flex-col items-center shrink-0 min-w-[48px] py-2 px-1 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
                 <span class="nav-icon text-base mb-0.5 transition-transform">🥬</span>
                 Sayur
             </button>
-            <button onclick="switchTab('belakang')" data-tab="belakang" class="nav-item flex flex-col items-center shrink-0 min-w-0 flex-1 py-2 px-0.5 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
+            <button onclick="switchTab('belakang')" data-tab="belakang" class="nav-item flex flex-col items-center shrink-0 min-w-[48px] py-2 px-1 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
                 <span class="nav-icon text-base mb-0.5 transition-transform">📦</span>
                 Belakang
             </button>
-            <button onclick="switchTab('packaging')" data-tab="packaging" class="nav-item flex flex-col items-center shrink-0 min-w-0 flex-1 py-2 px-0.5 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
+            <button onclick="switchTab('packaging')" data-tab="packaging" class="nav-item flex flex-col items-center shrink-0 min-w-[48px] py-2 px-1 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
                 <span class="nav-icon text-base mb-0.5 transition-transform">🥡</span>
                 Pack
             </button>
-            <button onclick="switchTab('habis')" data-tab="habis" class="nav-item flex flex-col items-center shrink-0 min-w-0 flex-1 py-2 px-0.5 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
+            <button onclick="switchTab('habis')" data-tab="habis" class="nav-item flex flex-col items-center shrink-0 min-w-[48px] py-2 px-1 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
                 <span class="nav-icon text-base mb-0.5 transition-transform">⚠️</span>
                 Habis
             </button>
-            <button onclick="switchTab('rusak')" data-tab="rusak" class="nav-item flex flex-col items-center shrink-0 min-w-0 flex-1 py-2 px-0.5 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
+            <button onclick="switchTab('rusak')" data-tab="rusak" class="nav-item flex flex-col items-center shrink-0 min-w-[48px] py-2 px-1 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
                 <span class="nav-icon text-base mb-0.5 transition-transform">❌</span>
                 Rusak
             </button>
-            <button onclick="switchTab('pembelian')" data-tab="pembelian" class="nav-item flex flex-col items-center shrink-0 min-w-0 flex-1 py-2 px-0.5 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
+            <button onclick="switchTab('pembelian')" data-tab="pembelian" class="nav-item flex flex-col items-center shrink-0 min-w-[48px] py-2 px-1 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
                 <span class="nav-icon text-base mb-0.5 transition-transform">💰</span>
                 Beli
             </button>
-            <button onclick="switchTab('foto')" data-tab="foto" class="nav-item flex flex-col items-center shrink-0 min-w-0 flex-1 py-2 px-0.5 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
+            <button onclick="switchTab('foto')" data-tab="foto" class="nav-item flex flex-col items-center shrink-0 min-w-[48px] py-2 px-1 text-[9px] font-medium text-gray-400 hover:text-blue-600 transition-colors">
                 <span class="nav-icon text-base mb-0.5 transition-transform">📸</span>
                 Foto
             </button>
@@ -371,7 +375,7 @@
 
     function getDefaultState() {
         return {
-            info: { tanggal: new Date().toISOString().split('T')[0], shift: "Pagi", crew: "" },
+            info: { title: "KUY GAMESTATION", tanggal: new Date().toISOString().split('T')[0], shift: "Pagi", crew: "" },
             depan: JSON.parse(JSON.stringify(DEFAULTS.depan)),
             frozen: JSON.parse(JSON.stringify(DEFAULTS.frozen)),
             sayur: JSON.parse(JSON.stringify(DEFAULTS.sayur)),
@@ -390,6 +394,7 @@
     // ===== LOCALSTORAGE =====
     function saveData() {
         state.info = {
+            title: document.getElementById('info-title').value || "KUY GAMESTATION",
             tanggal: document.getElementById('info-tanggal').value,
             shift: document.getElementById('info-shift').value,
             crew: document.getElementById('info-crew').value
@@ -464,6 +469,9 @@
                     return { ...rest, entries: [entry] };
                 });
             });
+            // Migrate: add title if missing
+            if (!state.info) state.info = {};
+            if (!state.info.title) state.info.title = "KUY GAMESTATION";
         } else {
             state = getDefaultState();
         }
@@ -626,6 +634,7 @@
 
     // ===== RENDER ALL =====
     function renderAll() {
+        document.getElementById('info-title').value = state.info.title || 'KUY GAMESTATION';
         document.getElementById('info-tanggal').value = state.info.tanggal || '';
         document.getElementById('info-shift').value = state.info.shift || 'Pagi';
         document.getElementById('info-crew').value = state.info.crew || '';
@@ -652,7 +661,7 @@
 
         let text = '';
         text += '📋 STOCK OPNAME F&B\n';
-        text += 'KUY GAMESTATION\n';
+        text += (state.info.title || 'KUY GAMESTATION') + '\n';
         text += `Tanggal: _${tgl}_/${bln}_/${thn}_\n`;
         text += `Shift: ${info.shift || ''} \n`;
         text += `Crew : _${info.crew || ''}_\n`;
