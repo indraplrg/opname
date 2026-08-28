@@ -28,9 +28,15 @@
                 <h1 class="text-base font-bold leading-tight">Stock Opname F&B</h1>
                 <p class="text-blue-200 text-xs">KUY Gamestation</p>
             </div>
-            <button onclick="showExport()" class="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1">
-                <span>📤</span> Selesai
-            </button>
+            <div class="flex items-center gap-2">
+                <label class="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1 cursor-pointer">
+                    <span>📥</span> Import
+                    <input type="file" accept=".json" onchange="importJSON(event)" class="hidden">
+                </label>
+                <button onclick="showExport()" class="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1">
+                    <span>📤</span> Selesai
+                </button>
+            </div>
         </div>
     </header>
 
@@ -284,11 +290,14 @@
                 <pre id="export-text" class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs font-mono text-gray-700 whitespace-pre-wrap wrap-break-words"></pre>
             </div>
             <div class="flex gap-2">
-                <button onclick="copyExport()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium py-2.5 rounded-lg transition-colors">
+                <button onclick="copyExport()" class="flex-1 text-white text-xs font-medium py-2.5 rounded-lg transition-colors" style="background-color: #2563eb;">
                     📋 Copy Text
                 </button>
-                <button onclick="downloadExport()" class="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium py-2.5 rounded-lg transition-colors">
+                <button onclick="downloadExport()" class="flex-1 text-white text-xs font-medium py-2.5 rounded-lg transition-colors" style="background-color: #16a34a;">
                     💾 Download .txt
+                </button>
+                <button onclick="downloadJSON()" class="flex-1 text-white text-xs font-medium py-2.5 rounded-lg transition-colors" style="background-color: #eab308;">
+                    📦 Export .json
                 </button>
             </div>
         </div>
@@ -783,6 +792,52 @@
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         showToast('✅ File berhasil didownload!');
+    }
+
+    function downloadJSON() {
+        saveData();
+        const json = JSON.stringify(state, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const info = state.info;
+        const tanggalParts = info.tanggal ? info.tanggal.split('-') : ['','',''];
+        a.href = url;
+        a.download = `stock-opname-${tanggalParts[0]}${tanggalParts[1]}${tanggalParts[2]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('✅ JSON berhasil didownload!');
+    }
+
+    function importJSON(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const imported = JSON.parse(e.target.result);
+                state = imported;
+                // Migrate if old format
+                ['depan','frozen','sayur','belakang','packaging'].forEach(section => {
+                    if (!state[section]) return;
+                    state[section] = state[section].map(item => {
+                        if (item.entries) return item;
+                        const entry = { value: item.value || "", unit: item.unit || "pcs" };
+                        const { value, unit, ...rest } = item;
+                        return { ...rest, entries: [entry] };
+                    });
+                });
+                localStorage.setItem('stockOpname', JSON.stringify(state));
+                renderAll();
+                showToast('✅ Data berhasil diimport!');
+            } catch (err) {
+                showToast('❌ File JSON tidak valid!');
+            }
+        };
+        reader.readAsText(file);
+        event.target.value = '';
     }
 
     // ===== TOAST =====
